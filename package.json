@@ -11,5 +11,8 @@
   },
   "dependencies": {
     "astro": "^2.6.4"
+  },
+  "devDependencies": {
+    "vitest": "^0.32.2"
   }
 }

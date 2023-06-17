@@ -1,43 +1,37 @@
 import { wordleWords } from "./words";
 
-type Hint = "GREEN" | "YELLOW" | "EXCLUDE";
+type HintType = "GREEN" | "YELLOW" | "NONE";
 
-interface Character {
+interface Hint {
   letter: string;
-  hint: Hint;
+  position: number;
+  type: HintType;
 }
 
-export const getPossibleWords = (guess: Character[]) => {
-  const guessWord = guess
-    .map((g) => g.letter)
-    .join("")
-    .toLowerCase();
-
+export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
   return wordleWords.filter((word) => {
-    if (word == guessWord) {
-      return false;
+    for (const hint of hints) {
+      if (hint.type == "GREEN") {
+        if (word.charAt(hint.position) != hint.letter) {
+          return false;
+        }
+      }
+
+      if (hint.type == "YELLOW") {
+        if (!word.includes(hint.letter)) {
+          return false;
+        }
+
+        if (word.charAt(hint.position) == hint.letter) {
+          return false;
+        }
+
+        // TODO also make sure letter isn't at any green positions
+      }
     }
 
-    for (let i = 0; i < guess.length; i++) {
-      const c = guess[i];
-
-      if (c.hint == "GREEN") {
-        if (word.charAt(i) != c.letter) {
-          return false;
-        }
-      }
-
-      if (c.hint == "YELLOW") {
-        if (!word.includes(c.letter)) {
-          return false;
-        }
-      }
-
-      if (c.hint == "EXCLUDE") {
-        if (word.includes(c.letter)) {
-          return false;
-        }
-      }
+    if (exclusions.some((letter) => word.includes(letter))) {
+      return false;
     }
 
     return true;
