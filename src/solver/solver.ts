@@ -1,8 +1,8 @@
 import { wordleWords } from "./words";
 
-type HintType = "GREEN" | "YELLOW" | "NONE";
+export type HintType = "GREEN" | "YELLOW" | "NONE";
 
-interface Hint {
+export interface Hint {
   letter: string;
   position: number;
   type: HintType;
