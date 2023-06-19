@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { getPossibleWords, type Hint } from "../solver/solver";
+import { getPossibleWords, HintType, type Hint } from "../solver/solver";
 
 interface Guess {
   hints: Hint[];
@@ -59,8 +59,14 @@ const reduceHints = (guesses: Guess[]) => {
   return { hints, exclusions };
 };
 
+const getWord = (guess: Guess) => guess.hints.map((hint) => hint.letter).join("");
+
 export const PreviousGuess = ({ guess }: { guess: Guess }) => {
-  const word = guess.hints.map((hint) => hint.letter);
+  const word = getWord(guess);
+
+  if (word.length < 5) {
+    return <></>;
+  }
 
   return <div>{word}</div>;
 };
@@ -71,22 +77,34 @@ interface HintInputProps {
 }
 
 const HintInput = ({ hint, onChange }: HintInputProps) => {
+  const [letter, setLetter] = useState(hint.letter.toUpperCase());
+
+  const setType = (type: HintType) => {
+    hint.type = type;
+  };
+
   return (
-    <input
-      class="w-10 h-12 p-2 mx-2 border-2 border-slate-800 focus:border-blue-500 text-2xl"
-      value={hint.letter}
-      onFocus={() => {}}
-      onBlur={(evt) => {
-        if (evt && evt.target) {
-          const input = evt.target as HTMLInputElement;
-          const nextLetter = input.value;
-          hint.letter = nextLetter;
+    <div class="relative inline-block">
+      <input
+        class="w-10 h-12 p-2 mx-2 border-2 border-slate-800 focus:border-blue-500 text-2xl"
+        value={letter}
+        onFocus={() => {}}
+        onInput={(evt) => {
+          const nextLetter = (evt.target as HTMLInputElement).value;
+          setLetter(nextLetter.toUpperCase());
+        }}
+        onBlur={() => {
+          hint.letter = letter;
           onChange(hint);
-        }
-      }}
-      type="text"
-      maxLength={1}
-    />
+        }}
+        type="text"
+        maxLength={1}
+      />
+      <div class="absolute top-3 left-0">
+        <button>{letter}</button>
+        <button>{letter}</button>
+      </div>
+    </div>
   );
 };
 
@@ -114,8 +132,13 @@ export const GuessInput = ({ onSubmit }: GuessInputProps) => {
 
   const onFormSubmit = (evt: Event) => {
     evt.preventDefault();
-    onSubmit({ hints: [hints[0], hints[1], hints[2], hints[3], hints[4]] });
-    setHints(emptyHints());
+
+    const guess = { hints: [hints[0], hints[1], hints[2], hints[3], hints[4]] };
+
+    if (getWord(guess).length == 5) {
+      onSubmit(guess);
+      setHints(emptyHints());
+    }
   };
 
   return (
