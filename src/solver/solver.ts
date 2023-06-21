@@ -10,16 +10,16 @@ export interface Hint {
 
 export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
   return wordleWords.filter((word) => {
-    for (const hint of hints) {
+    const containsHint = hints.some((hint) => {
       if (hint.type == "GREEN") {
-        if (word.charAt(hint.position) != hint.letter) {
-          return false;
+        if (word.charAt(hint.position) == hint.letter) {
+          return true;
         }
       }
 
       if (hint.type == "YELLOW") {
-        if (!word.includes(hint.letter)) {
-          return false;
+        if (word.includes(hint.letter)) {
+          return true;
         }
 
         if (word.charAt(hint.position) == hint.letter) {
@@ -28,12 +28,12 @@ export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
 
         // TODO also make sure letter isn't at any green positions
       }
-    }
 
-    if (exclusions.some((letter) => word.includes(letter))) {
       return false;
-    }
+    });
 
-    return true;
+    const containsExclusion = exclusions.some((letter) => word.includes(letter));
+
+    return containsHint && !containsExclusion;
   });
 };
