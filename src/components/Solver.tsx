@@ -1,13 +1,8 @@
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { getPossibleWords, HintType, type Hint } from "../solver/solver";
 
 interface Guess {
   hints: Hint[];
-}
-
-interface SolverState {
-  guesses: Guess[];
-  wordList: string[];
 }
 
 export const Solver = () => {
@@ -78,32 +73,56 @@ interface HintInputProps {
 
 const HintInput = ({ hint, onChange }: HintInputProps) => {
   const [letter, setLetter] = useState(hint.letter.toUpperCase());
+  const [type, setType] = useState<HintType>("NONE");
+  const [active, setActive] = useState(false);
 
-  const setType = (type: HintType) => {
-    hint.type = type;
-  };
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    const handleKey = (evt: KeyboardEvent) => {
+      if (evt.code == "ArrowLeft") {
+        setType("GREEN");
+      }
+
+      if (evt.code == "ArrowRight") {
+        setType("YELLOW");
+      }
+    };
+
+    document.addEventListener("keydown", handleKey);
+
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [active]);
+
+  const greenStyle = "border-green-800 bg-green-300";
+  const yellowStyle = "border-yellow-500 bg-yellow-200";
+
+  let typeStyle = "border-slate-800";
+  if (type == "GREEN") {
+    typeStyle = greenStyle;
+  } else if (type == "YELLOW") {
+    typeStyle = yellowStyle;
+  }
 
   return (
     <div class="relative inline-block">
       <input
-        class="w-10 h-12 p-2 mx-2 border-2 border-slate-800 focus:border-blue-500 text-2xl"
+        class={`w-10 h-12 p-2 mx-2 border-2 focus:border-blue-500 text-2xl ${typeStyle}`}
         value={letter}
-        onFocus={() => {}}
+        onFocus={() => setActive(true)}
         onInput={(evt) => {
           const nextLetter = (evt.target as HTMLInputElement).value;
           setLetter(nextLetter.toUpperCase());
         }}
         onBlur={() => {
-          hint.letter = letter;
-          onChange(hint);
+          setActive(false);
+          onChange({ letter, type, position: hint.position });
         }}
         type="text"
         maxLength={1}
       />
-      <div class="absolute top-3 left-0">
-        <button>{letter}</button>
-        <button>{letter}</button>
-      </div>
     </div>
   );
 };
