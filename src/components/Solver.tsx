@@ -67,12 +67,12 @@ export const PreviousGuess = ({ guess }: { guess: Guess }) => {
 };
 
 interface HintInputProps {
-  hint: Hint;
+  position: number;
   onChange: (hint: Hint) => void;
 }
 
-const HintInput = ({ hint, onChange }: HintInputProps) => {
-  const [letter, setLetter] = useState(hint.letter.toUpperCase());
+const HintInput = ({ position, onChange }: HintInputProps) => {
+  const [letter, setLetter] = useState("");
   const [type, setType] = useState<HintType>("NONE");
   const [active, setActive] = useState(false);
 
@@ -88,6 +88,10 @@ const HintInput = ({ hint, onChange }: HintInputProps) => {
 
       if (evt.code == "ArrowRight") {
         setType("YELLOW");
+      }
+
+      if (evt.code == "ArrowDown") {
+        setType("NONE");
       }
     };
 
@@ -118,7 +122,7 @@ const HintInput = ({ hint, onChange }: HintInputProps) => {
         }}
         onBlur={() => {
           setActive(false);
-          onChange({ letter, type, position: hint.position });
+          onChange({ letter, type, position });
         }}
         type="text"
         maxLength={1}
@@ -162,11 +166,11 @@ export const GuessInput = ({ onSubmit }: GuessInputProps) => {
 
   return (
     <form onSubmit={onFormSubmit}>
-      <HintInput hint={hints[0]} onChange={onHintChange} />
-      <HintInput hint={hints[1]} onChange={onHintChange} />
-      <HintInput hint={hints[2]} onChange={onHintChange} />
-      <HintInput hint={hints[3]} onChange={onHintChange} />
-      <HintInput hint={hints[4]} onChange={onHintChange} />
+      <HintInput position={0} onChange={onHintChange} />
+      <HintInput position={1} onChange={onHintChange} />
+      <HintInput position={2} onChange={onHintChange} />
+      <HintInput position={3} onChange={onHintChange} />
+      <HintInput position={4} onChange={onHintChange} />
       <button type="submit">Save</button>
     </form>
   );
