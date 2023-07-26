@@ -22,14 +22,14 @@ export const Solver = () => {
   return (
     <div class="flex flex-row">
       <div class="basis-1/2">
-        <h2>Guesses</h2>
+        <h2 class="text-2xl font-bold mb-4">Guesses</h2>
         {guesses.map((guess) => (
           <PreviousGuess guess={guess} />
         ))}
         <GuessInput onSubmit={addGuess} />
       </div>
       <div class="basis-1/2">
-        <h2>Possible Words ({wordList.length})</h2>
+        <h2 class="text-2xl font-bold mb-4">Possible Words ({wordList.length})</h2>
         {wordList.map((word) => (
           <div>{word}</div>
         ))}
@@ -154,7 +154,12 @@ export const GuessInput = ({ onSubmit }: GuessInputProps) => {
       {Object.values(hints).map((hint) => (
         <HintInput hint={hint} onChange={onHintChange} />
       ))}
-      <button type="submit">Save</button>
+      <button
+        class="rounded border-blue-800 border-2 bg-blue-600 text-white font-bold py-2 px-4"
+        type="submit"
+      >
+        Save
+      </button>
     </form>
   );
 };
