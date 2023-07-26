@@ -9,6 +9,14 @@ export interface Hint {
 }
 
 export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
+  // const exactMatches = hints.reduce<number[]>((greens, hint) => {
+  //   if (hint.type == "GREEN") {
+  //     greens.push(hint.position);
+  //   }
+
+  //   return greens;
+  // }, []);
+
   return wordleWords.filter((word) => {
     const containsHint = hints.every((hint) => {
       const letter = hint.letter.toLowerCase();
@@ -20,15 +28,17 @@ export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
       }
 
       if (hint.type == "YELLOW") {
-        if (word.includes(letter)) {
-          return true;
-        }
-
+        // exclude words that have a letter that matches the hint letter and position
+        // i.e. that would be a green hint, not a yellow hint
         if (word.charAt(hint.position) == letter) {
           return false;
         }
 
-        // TODO also make sure letter isn't at any green positions
+        // TODO this could be more exact. The word should contain the letter at a position
+        // that isn't already claimed by a green hint. Does this eliminate double letter words incorrectly?
+        if (word.includes(letter)) {
+          return true;
+        }
       }
 
       return false;
