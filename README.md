@@ -1,47 +1,27 @@
-# Astro Starter Kit: Minimal
+# Wordle Solver
 
-```
-npm create astro@latest -- --template minimal
-```
+## Rules of the Game
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
+The goal of Wordle is to guess a word in less than 6 guesses. The word will only contain alphabetic letters. There are no numbers or symbols in the word.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- Each guess must be a valid five letter word.
+- Each guess will be given hints if letters from the word match the solution.
+- Exact matches are marked green, meaning the letter is correct, and is in the correct position.
+- Partial matches are marked yellow, meaning the letter is correct, but in the wrong position.
 
-## 🚀 Project Structure
+The player is encouraged to use the hints from their current guess to inform the next best guess.
 
-Inside of your Astro project, you'll see the following folders and files:
+If a guessed word results in 5 exact matches the solution has been found and the game is won. If 6 guesses do not result in a solution the game is lost.
 
-```
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## Solver
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+The solver takes user input, with the user inputting the guess they made, as well as the hints received from the Wordle game. The solver will then output a list of possible words remaining based on the cumulative hints of all the guesses.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## TODO
 
-Any static assets, like images, can be placed in the `public/` directory.
+- Instead of returning possible words in alphabetic order, rank the words by how many common consenants and vowels they contain. higher ranked words at the top.
+- Instead of returning every possible word, return the top 5 ranked possible words.
 
-## 🧞 Commands
+This should make it easier to design a mobile friendly UI as well.
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:3000`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- Format the previous guesses like the input for the current guess, including hints.
