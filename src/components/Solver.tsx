@@ -1,9 +1,5 @@
-import { useEffect, useState } from "preact/hooks";
-import { getPossibleWords, HintType, type Hint } from "../solver/solver";
-
-interface Guess {
-  hints: Hint[];
-}
+import { useState } from "preact/hooks";
+import { getPossibleWords, type Hint, Guess, reduceHints } from "../solver/solver";
 
 export const Solver = () => {
   const [guesses, setGuesses] = useState<Guess[]>([]);
@@ -36,22 +32,6 @@ export const Solver = () => {
       </div>
     </div>
   );
-};
-
-const reduceHints = (guesses: Guess[]) => {
-  const hints = guesses.reduce<Hint[]>((hints, guess) => {
-    hints = hints.concat(guess.hints.filter((hint) => hint.type != "NONE"));
-    return hints;
-  }, []);
-
-  const exclusions = guesses.reduce<string[]>((letters, guess) => {
-    letters = letters.concat(
-      guess.hints.filter((hint) => hint.type == "NONE").map((hint) => hint.letter)
-    );
-    return letters;
-  }, []);
-
-  return { hints, exclusions };
 };
 
 const getWord = (guess: Guess) => guess.hints.map((hint) => hint.letter).join("");

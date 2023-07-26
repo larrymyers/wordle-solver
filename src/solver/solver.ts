@@ -8,37 +8,64 @@ export interface Hint {
   type: HintType;
 }
 
-export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
-  // const exactMatches = hints.reduce<number[]>((greens, hint) => {
-  //   if (hint.type == "GREEN") {
-  //     greens.push(hint.position);
-  //   }
+export interface Guess {
+  hints: Hint[];
+}
 
-  //   return greens;
-  // }, []);
+// reduceHints takes all current guesses and outputs two arrays:
+// 1. The list of exact and partial matches.
+// 2. The list of exclusions (letters that do not match)
+export const reduceHints = (guesses: Guess[]) => {
+  const hints = guesses.reduce<Hint[]>((hints, guess) => {
+    hints = hints.concat(guess.hints.filter((hint) => hint.type != "NONE"));
+    return hints;
+  }, []);
+
+  const exclusions = guesses.reduce<string[]>((letters, guess) => {
+    letters = letters.concat(
+      guess.hints.filter((hint) => hint.type == "NONE").map((hint) => hint.letter)
+    );
+    return letters;
+  }, []);
+
+  return { hints, exclusions };
+};
+
+export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
+  const exactMatches = hints.reduce<number[]>((greens, hint) => {
+    if (hint.type == "GREEN") {
+      greens.push(hint.position);
+    }
+
+    return greens;
+  }, []);
 
   return wordleWords.filter((word) => {
     const containsHint = hints.every((hint) => {
+      const { type, position } = hint;
       const letter = hint.letter.toLowerCase();
+      const chars = word.split("");
 
-      if (hint.type == "GREEN") {
-        if (word.charAt(hint.position) == letter) {
+      if (type == "GREEN") {
+        if (chars[position] == letter) {
           return true;
         }
       }
 
-      if (hint.type == "YELLOW") {
-        // exclude words that have a letter that matches the hint letter and position
-        // i.e. that would be a green hint, not a yellow hint
-        if (word.charAt(hint.position) == letter) {
-          return false;
-        }
+      if (type == "YELLOW") {
+        return chars.some((c, i) => {
+          // match can't be at an existing green hint position
+          if (exactMatches.includes(i)) {
+            return false;
+          }
 
-        // TODO this could be more exact. The word should contain the letter at a position
-        // that isn't already claimed by a green hint. Does this eliminate double letter words incorrectly?
-        if (word.includes(letter)) {
-          return true;
-        }
+          // match must be at a position different than hint
+          if (i == position) {
+            return false;
+          }
+
+          return c == letter;
+        });
       }
 
       return false;
