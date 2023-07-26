@@ -67,38 +67,30 @@ export const PreviousGuess = ({ guess }: { guess: Guess }) => {
 };
 
 interface HintInputProps {
-  position: number;
+  hint: Hint;
   onChange: (hint: Hint) => void;
 }
 
-const HintInput = ({ position, onChange }: HintInputProps) => {
-  const [letter, setLetter] = useState("");
-  const [type, setType] = useState<HintType>("NONE");
-  const [active, setActive] = useState(false);
+const HintInput = ({ hint, onChange }: HintInputProps) => {
+  const { letter, type, position } = hint;
 
-  useEffect(() => {
-    if (!active) {
-      return;
+  const handleKey = (evt: KeyboardEvent) => {
+    if (evt.code == "ArrowLeft") {
+      onChange({ letter, position, type: "GREEN" });
     }
 
-    const handleKey = (evt: KeyboardEvent) => {
-      if (evt.code == "ArrowLeft") {
-        setType("GREEN");
-      }
+    if (evt.code == "ArrowRight") {
+      onChange({ letter, position, type: "YELLOW" });
+    }
 
-      if (evt.code == "ArrowRight") {
-        setType("YELLOW");
-      }
+    if (evt.code == "ArrowDown") {
+      onChange({ letter, position, type: "NONE" });
+    }
 
-      if (evt.code == "ArrowDown") {
-        setType("NONE");
-      }
-    };
-
-    document.addEventListener("keydown", handleKey);
-
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [active]);
+    if (evt.key.length == 1) {
+      onChange({ letter: evt.key.toUpperCase(), type, position });
+    }
+  };
 
   const greenStyle = "border-green-800 bg-green-300";
   const yellowStyle = "border-yellow-500 bg-yellow-200";
@@ -115,15 +107,7 @@ const HintInput = ({ position, onChange }: HintInputProps) => {
       <input
         class={`w-10 h-12 p-2 mx-2 border-2 focus:border-blue-500 text-2xl ${typeStyle}`}
         value={letter}
-        onFocus={() => setActive(true)}
-        onInput={(evt) => {
-          const nextLetter = (evt.target as HTMLInputElement).value;
-          setLetter(nextLetter.toUpperCase());
-        }}
-        onBlur={() => {
-          setActive(false);
-          onChange({ letter, type, position });
-        }}
+        onKeyDown={handleKey}
         type="text"
         maxLength={1}
       />
@@ -131,14 +115,14 @@ const HintInput = ({ position, onChange }: HintInputProps) => {
   );
 };
 
-const emptyHints = (): Record<number, Hint> => {
-  return {
-    0: { letter: "", position: 0, type: "NONE" },
-    1: { letter: "", position: 1, type: "NONE" },
-    2: { letter: "", position: 2, type: "NONE" },
-    3: { letter: "", position: 3, type: "NONE" },
-    4: { letter: "", position: 4, type: "NONE" },
-  };
+const emptyHints = (): Hint[] => {
+  return [
+    { letter: "", position: 0, type: "NONE" },
+    { letter: "", position: 1, type: "NONE" },
+    { letter: "", position: 2, type: "NONE" },
+    { letter: "", position: 3, type: "NONE" },
+    { letter: "", position: 4, type: "NONE" },
+  ];
 };
 
 interface GuessInputProps {
@@ -146,17 +130,18 @@ interface GuessInputProps {
 }
 
 export const GuessInput = ({ onSubmit }: GuessInputProps) => {
-  const [hints, setHints] = useState<Record<number, Hint>>(emptyHints());
+  const [hints, setHints] = useState<Hint[]>(emptyHints());
 
   const onHintChange = (hint: Hint) => {
-    hints[hint.position] = hint;
-    setHints(hints);
+    const p = hint.position;
+    const nextHints = hints.slice(0, p).concat([hint], hints.slice(p + 1));
+    setHints(nextHints);
   };
 
   const onFormSubmit = (evt: Event) => {
     evt.preventDefault();
 
-    const guess = { hints: [hints[0], hints[1], hints[2], hints[3], hints[4]] };
+    const guess = { hints };
 
     if (getWord(guess).length == 5) {
       onSubmit(guess);
@@ -166,11 +151,9 @@ export const GuessInput = ({ onSubmit }: GuessInputProps) => {
 
   return (
     <form onSubmit={onFormSubmit}>
-      <HintInput position={0} onChange={onHintChange} />
-      <HintInput position={1} onChange={onHintChange} />
-      <HintInput position={2} onChange={onHintChange} />
-      <HintInput position={3} onChange={onHintChange} />
-      <HintInput position={4} onChange={onHintChange} />
+      {Object.values(hints).map((hint) => (
+        <HintInput hint={hint} onChange={onHintChange} />
+      ))}
       <button type="submit">Save</button>
     </form>
   );
