@@ -19,9 +19,4 @@ The solver takes user input, with the user inputting the guess they made, as wel
 
 ## TODO
 
-- Instead of returning possible words in alphabetic order, rank the words by how many common consenants and vowels they contain. higher ranked words at the top.
-- Instead of returning every possible word, return the top 5 ranked possible words.
-
-This should make it easier to design a mobile friendly UI as well.
-
 - Format the previous guesses like the input for the current guess, including hints.
