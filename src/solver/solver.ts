@@ -51,6 +51,21 @@ const getRank = (word: string) => {
   return score;
 };
 
+const isPlural = (word: string) => {
+  const chars = word.split("");
+
+  if (word[4] != "s") {
+    return false;
+  }
+
+  // i.e. guess, class, minus, focus
+  if (["a", "i", "o", "u", "s"].includes(word[3])) {
+    return false;
+  }
+
+  return true;
+};
+
 export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
   const exactMatches = hints.reduce<number[]>((greens, hint) => {
     if (hint.type == "GREEN") {
@@ -93,7 +108,7 @@ export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
 
     const containsExclusion = exclusions.some((letter) => word.includes(letter.toLowerCase()));
 
-    return containsHint && !containsExclusion && !word.endsWith("s");
+    return containsHint && !containsExclusion && !isPlural(word);
   });
 
   const rankedWords = matchedWords
