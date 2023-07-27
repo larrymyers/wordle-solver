@@ -31,6 +31,26 @@ export const reduceHints = (guesses: Guess[]) => {
   return { hints, exclusions };
 };
 
+const getRank = (word: string) => {
+  const primary = ["r", "s", "t", "l", "n", "e", "a"];
+  const secondary = ["i", "o", "u", "m", "p", "d", "c"];
+  let score = 0;
+
+  primary.forEach((c) => {
+    if (word.includes(c)) {
+      score += 10;
+    }
+  });
+
+  secondary.forEach((c) => {
+    if (word.includes(c)) {
+      score += 5;
+    }
+  });
+
+  return score;
+};
+
 export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
   const exactMatches = hints.reduce<number[]>((greens, hint) => {
     if (hint.type == "GREEN") {
@@ -40,7 +60,7 @@ export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
     return greens;
   }, []);
 
-  return wordleWords.filter((word) => {
+  const matchedWords = wordleWords.filter((word) => {
     const containsHint = hints.every((hint) => {
       const { type, position } = hint;
       const letter = hint.letter.toLowerCase();
@@ -73,6 +93,12 @@ export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
 
     const containsExclusion = exclusions.some((letter) => word.includes(letter.toLowerCase()));
 
-    return containsHint && !containsExclusion;
+    return containsHint && !containsExclusion && !word.endsWith("s");
   });
+
+  const rankedWords = matchedWords
+    .map((word) => ({ word, rank: getRank(word) }))
+    .sort((a, b) => b.rank - a.rank);
+
+  return rankedWords.map((ranked) => ranked.word);
 };
