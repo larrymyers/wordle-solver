@@ -16,15 +16,15 @@ export const Solver = () => {
   }
 
   return (
-    <div class="flex flex-row">
-      <div class="basis-1/2">
+    <div class="flex flex-col sm:flex-row">
+      <div class="sm:basis-1/2">
         <h2 class="text-2xl font-bold mb-4">Guesses</h2>
         {guesses.map((guess) => (
           <PreviousGuess guess={guess} />
         ))}
         <GuessInput onSubmit={addGuess} />
       </div>
-      <div class="basis-1/2">
+      <div class="mt-8 sm:mt-0 sm:basis-1/2">
         <h2 class="text-2xl font-bold mb-4">Possible Words ({wordList.length})</h2>
         {wordList.map((word) => (
           <div>{word}</div>
@@ -49,9 +49,10 @@ export const PreviousGuess = ({ guess }: { guess: Guess }) => {
 interface HintInputProps {
   hint: Hint;
   onChange: (hint: Hint) => void;
+  onActive: (position: number) => void;
 }
 
-const HintInput = ({ hint, onChange }: HintInputProps) => {
+const HintInput = ({ hint, onChange, onActive }: HintInputProps) => {
   const { letter, type, position } = hint;
 
   const handleKey = (evt: KeyboardEvent) => {
@@ -87,6 +88,7 @@ const HintInput = ({ hint, onChange }: HintInputProps) => {
       <input
         class={`w-10 h-12 p-2 mx-2 border-2 focus:border-blue-500 text-2xl ${typeStyle}`}
         value={letter}
+        onFocus={() => onActive(hint.position)}
         onKeyDown={handleKey}
         type="text"
         maxLength={1}
@@ -111,12 +113,16 @@ interface GuessInputProps {
 
 export const GuessInput = ({ onSubmit }: GuessInputProps) => {
   const [hints, setHints] = useState<Hint[]>(emptyHints());
+  const [activeHint, setActiveHint] = useState<number>(0);
 
   const onHintChange = (hint: Hint) => {
+    console.log(hint);
     const p = hint.position;
     const nextHints = hints.slice(0, p).concat([hint], hints.slice(p + 1));
     setHints(nextHints);
   };
+
+  const onHintActive = (position: number) => setActiveHint(position);
 
   const onFormSubmit = (evt: Event) => {
     evt.preventDefault();
@@ -132,8 +138,43 @@ export const GuessInput = ({ onSubmit }: GuessInputProps) => {
   return (
     <form onSubmit={onFormSubmit}>
       {Object.values(hints).map((hint) => (
-        <HintInput hint={hint} onChange={onHintChange} />
+        <HintInput hint={hint} onChange={onHintChange} onActive={onHintActive} />
       ))}
+      <div class="flex flex-row space-x-4 my-6">
+        <button
+          class="rounded border-yellow-500 border-2 bg-yellow-200 text-black font-bold py-2 px-4"
+          type="button"
+          onClick={() => {
+            const hint = hints[activeHint];
+            hint.type = "YELLOW";
+            onHintChange(hint);
+          }}
+        >
+          Partial
+        </button>
+        <button
+          class="rounded border-green-800 border-2 bg-green-300 text-black font-bold py-2 px-4"
+          type="button"
+          onClick={() => {
+            const hint = hints[activeHint];
+            hint.type = "GREEN";
+            onHintChange(hint);
+          }}
+        >
+          Exact
+        </button>
+        <button
+          class="rounded border-slate-800 border-2 bg-white text-slate-800 font-bold py-2 px-4"
+          type="button"
+          onClick={() => {
+            const hint = hints[activeHint];
+            hint.type = "NONE";
+            onHintChange(hint);
+          }}
+        >
+          None
+        </button>
+      </div>
       <button
         class="rounded border-blue-800 border-2 bg-blue-600 text-white font-bold py-2 px-4"
         type="submit"
