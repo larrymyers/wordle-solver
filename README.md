@@ -1,5 +1,7 @@
 # Wordle Solver
 
+https://wordle.larrymyers.com
+
 ## Rules of the Game
 
 The goal of Wordle is to guess a word in less than 6 guesses. The word will only contain alphabetic letters. There are no numbers or symbols in the word.
