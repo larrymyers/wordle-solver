@@ -16,10 +16,31 @@ export interface Guess {
 // 1. The list of exact and partial matches.
 // 2. The list of exclusions (letters that do not match)
 export const reduceHints = (guesses: Guess[]) => {
-  const hints = guesses.reduce<Hint[]>((hints, guess) => {
-    hints = hints.concat(guess.hints.filter((hint) => hint.type != "NONE"));
+  const hintsByLetter = guesses.reduce<Map<string, Hint[]>>((hints, guess) => {
+    guess.hints
+      .filter((hint) => hint.type != "NONE")
+      .sort((a, _) => (a.type == "GREEN" ? 1 : -1)) // eval exact matches first
+      .forEach((hint) => {
+        let letterHints = hints.get(hint.letter);
+        if (letterHints) {
+          // if letter is in the correct position remove previous existing partial matches
+          if (hint.type == "GREEN") {
+            letterHints = letterHints.filter((hint) => hint.type != "YELLOW");
+          }
+          letterHints.push(hint);
+          hints.set(hint.letter, letterHints);
+        } else {
+          hints.set(hint.letter, [hint]);
+        }
+      });
+
     return hints;
-  }, []);
+  }, new Map());
+
+  let hints: Hint[] = [];
+  for (const letterHints of hintsByLetter.values()) {
+    hints = hints.concat(letterHints);
+  }
 
   const exclusions = guesses.reduce<string[]>((letters, guess) => {
     letters = letters.concat(

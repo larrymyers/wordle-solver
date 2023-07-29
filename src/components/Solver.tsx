@@ -116,7 +116,6 @@ export const GuessInput = ({ onSubmit }: GuessInputProps) => {
   const [activeHint, setActiveHint] = useState<number>(0);
 
   const onHintChange = (hint: Hint) => {
-    console.log(hint);
     const p = hint.position;
     const nextHints = hints.slice(0, p).concat([hint], hints.slice(p + 1));
     setHints(nextHints);
