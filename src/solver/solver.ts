@@ -23,7 +23,7 @@ export const reduceHints = (guesses: Guess[]) => {
       .forEach((hint) => {
         let letterHints = hints.get(hint.letter);
         if (letterHints) {
-          // if letter is in the correct position remove previous existing partial matches
+          // if letter is in the correct position remove previous partial matches
           if (hint.type == "GREEN") {
             letterHints = letterHints.filter((hint) => hint.type != "YELLOW");
           }
@@ -43,9 +43,18 @@ export const reduceHints = (guesses: Guess[]) => {
   }
 
   const exclusions = guesses.reduce<string[]>((letters, guess) => {
-    letters = letters.concat(
-      guess.hints.filter((hint) => hint.type == "NONE").map((hint) => hint.letter)
-    );
+    guess.hints
+      .filter((hint) => hint.type == "NONE")
+      .map((hint) => hint.letter)
+      .forEach((letter) => {
+        // handle a double letter guess where only a single letter matches
+        if (hintsByLetter.has(letter)) {
+          return;
+        }
+
+        letters.push(letter);
+      });
+
     return letters;
   }, []);
 

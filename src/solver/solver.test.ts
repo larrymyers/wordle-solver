@@ -44,3 +44,24 @@ test("guesses with hint promotion", () => {
 
   expectedWords.forEach((word) => assert.include(actualWords, word));
 });
+
+test("double letter guess with only a single match", () => {
+  const gueses: Guess[] = [
+    {
+      hints: [
+        { letter: "F", position: 0, type: "NONE" },
+        { letter: "O", position: 1, type: "GREEN" },
+        { letter: "L", position: 2, type: "GREEN" },
+        { letter: "L", position: 3, type: "NONE" },
+        { letter: "Y", position: 4, type: "YELLOW" },
+      ],
+    },
+  ];
+
+  const { hints, exclusions } = reduceHints(gueses);
+
+  const actualWords = getPossibleWords(hints, exclusions);
+  const expectedWords = ["polyp"];
+
+  expectedWords.forEach((word) => assert.include(actualWords, word));
+});
