@@ -43,7 +43,29 @@ export const PreviousGuess = ({ guess }: { guess: Guess }) => {
     return <></>;
   }
 
-  return <div>{word}</div>;
+  const hints = guess.hints.map((hint) => {
+    const { letter, type } = hint;
+
+    const greenStyle = "border-green-800 bg-green-300";
+    const yellowStyle = "border-yellow-500 bg-yellow-200";
+
+    let typeStyle = "border-slate-800";
+    if (type == "GREEN") {
+      typeStyle = greenStyle;
+    } else if (type == "YELLOW") {
+      typeStyle = yellowStyle;
+    }
+
+    return (
+      <div
+        class={`inline-block w-10 h-12 p-2 mx-2 my-2 border-2 focus:border-blue-500 text-2xl ${typeStyle}`}
+      >
+        {letter}
+      </div>
+    );
+  });
+
+  return <div>{hints}</div>;
 };
 
 interface HintInputProps {
@@ -135,7 +157,7 @@ export const GuessInput = ({ onSubmit }: GuessInputProps) => {
   };
 
   return (
-    <form onSubmit={onFormSubmit}>
+    <form class="mt-6" onSubmit={onFormSubmit}>
       {Object.values(hints).map((hint) => (
         <HintInput hint={hint} onChange={onHintChange} onActive={onHintActive} />
       ))}

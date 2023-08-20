@@ -21,4 +21,4 @@ The solver takes user input, with the user inputting the guess they made, as wel
 
 ## TODO
 
-- Format the previous guesses like the input for the current guess, including hints.
+- Add dark mode: https://tailwindcss.com/docs/dark-mode#toggling-dark-mode-manually
