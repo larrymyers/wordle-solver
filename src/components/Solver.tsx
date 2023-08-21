@@ -18,16 +18,16 @@ export const Solver = () => {
   return (
     <div class="flex flex-col sm:flex-row">
       <div class="sm:basis-1/2">
-        <h2 class="text-2xl font-bold mb-4">Guesses</h2>
+        <h2 class="text-2xl font-bold mb-4 dark:text-white">Guesses</h2>
         {guesses.map((guess) => (
           <PreviousGuess guess={guess} />
         ))}
         <GuessInput onSubmit={addGuess} />
       </div>
       <div class="mt-8 sm:mt-0 sm:basis-1/2">
-        <h2 class="text-2xl font-bold mb-4">Possible Words ({wordList.length})</h2>
-        {wordList.map((word) => (
-          <div>{word}</div>
+        <h2 class="text-2xl font-bold mb-4 dark:text-white">Possible Words ({wordList.length})</h2>
+        {wordList.slice(0, 50).map((word) => (
+          <div class="dark:text-white">{word}</div>
         ))}
       </div>
     </div>
@@ -49,7 +49,7 @@ export const PreviousGuess = ({ guess }: { guess: Guess }) => {
     const greenStyle = "border-green-800 bg-green-300";
     const yellowStyle = "border-yellow-500 bg-yellow-200";
 
-    let typeStyle = "border-slate-800";
+    let typeStyle = "border-slate-800 dark:bg-slate-700 dark:text-white";
     if (type == "GREEN") {
       typeStyle = greenStyle;
     } else if (type == "YELLOW") {
@@ -98,7 +98,7 @@ const HintInput = ({ hint, onChange, onActive }: HintInputProps) => {
   const greenStyle = "border-green-800 bg-green-300";
   const yellowStyle = "border-yellow-500 bg-yellow-200";
 
-  let typeStyle = "border-slate-800";
+  let typeStyle = "border-slate-800 dark:bg-slate-700 dark:text-white";
   if (type == "GREEN") {
     typeStyle = greenStyle;
   } else if (type == "YELLOW") {

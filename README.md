@@ -18,7 +18,3 @@ If a guessed word results in 5 exact matches the solution has been found and the
 ## Solver
 
 The solver takes user input, with the user inputting the guess they made, as well as the hints received from the Wordle game. The solver will then output a list of possible words remaining based on the cumulative hints of all the guesses.
-
-## TODO
-
-- Add dark mode: https://tailwindcss.com/docs/dark-mode#toggling-dark-mode-manually
