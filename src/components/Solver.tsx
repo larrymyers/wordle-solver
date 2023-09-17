@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks";
-import { getPossibleWords, type Hint, Guess, reduceHints } from "../solver/solver";
+import { getPossibleWords, reduceHints } from "../solver/solver";
+import type { Hint, Guess } from "../solver/solver";
 
 export const Solver = () => {
   const [guesses, setGuesses] = useState<Guess[]>([]);
@@ -26,8 +27,8 @@ export const Solver = () => {
       </div>
       <div class="mt-8 sm:mt-0 sm:basis-1/2">
         <h2 class="text-2xl font-bold mb-4 dark:text-white">Possible Words ({wordList.length})</h2>
-        {wordList.slice(0, 50).map((word) => (
-          <div class="dark:text-white">{word}</div>
+        {wordList.slice(0, 30).map((word) => (
+          <div class="text-lg dark:text-white">{word.toUpperCase()}</div>
         ))}
       </div>
     </div>
