@@ -1,5 +1,5 @@
 import { assert, test } from "vitest";
-import { Guess, getPossibleWords, reduceHints } from "./solver";
+import { type Guess, getPossibleWords, reduceHints } from "./solver";
 
 test("getPossibleWords", () => {
   const matches = getPossibleWords(
