@@ -1,9 +1,10 @@
-import { useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 import { getPossibleWords, reduceHints } from "../solver/solver";
 import type { Hint, Guess } from "../solver/solver";
 
 export const Solver = () => {
   const [guesses, setGuesses] = useState<Guess[]>([]);
+  const [selectedWord, setSelectedWord] = useState<string>("");
 
   const addGuess = (guess: Guess) => {
     setGuesses(guesses.concat([guess]));
@@ -23,12 +24,17 @@ export const Solver = () => {
         {guesses.map((guess) => (
           <PreviousGuess guess={guess} />
         ))}
-        <GuessInput onSubmit={addGuess} />
+        <GuessInput onSubmit={addGuess} initialWord={selectedWord} />
       </div>
       <div class="mt-8 sm:mt-0 sm:basis-1/2">
         <h2 class="text-2xl font-bold mb-4 dark:text-white">Possible Words ({wordList.length})</h2>
         {wordList.slice(0, 30).map((word) => (
-          <div class="text-lg dark:text-white">{word.toUpperCase()}</div>
+          <div
+            class="text-lg dark:text-white cursor-pointer"
+            onClick={() => setSelectedWord(word.toUpperCase())}
+          >
+            {word.toUpperCase()}
+          </div>
         ))}
       </div>
     </div>
@@ -120,23 +126,28 @@ const HintInput = ({ hint, onChange, onActive }: HintInputProps) => {
   );
 };
 
-const emptyHints = (): Hint[] => {
-  return [
-    { letter: "", position: 0, type: "NONE" },
-    { letter: "", position: 1, type: "NONE" },
-    { letter: "", position: 2, type: "NONE" },
-    { letter: "", position: 3, type: "NONE" },
-    { letter: "", position: 4, type: "NONE" },
-  ];
+const emptyHints = (word: string): Hint[] => {
+  if (word.length != 5) {
+    word = "     ";
+  }
+
+  return word.split("").map((letter, i) => ({ letter, position: i, type: "NONE" }));
 };
 
 interface GuessInputProps {
   onSubmit: (guess: Guess) => void;
+  initialWord?: string;
 }
 
-export const GuessInput = ({ onSubmit }: GuessInputProps) => {
-  const [hints, setHints] = useState<Hint[]>(emptyHints());
+export const GuessInput = ({ onSubmit, initialWord }: GuessInputProps) => {
+  const [hints, setHints] = useState<Hint[]>(emptyHints(initialWord || ""));
   const [activeHint, setActiveHint] = useState<number>(0);
+
+  useEffect(() => {
+    if (initialWord) {
+      setHints(emptyHints(initialWord));
+    }
+  }, [initialWord]);
 
   const onHintChange = (hint: Hint) => {
     const p = hint.position;
@@ -153,7 +164,7 @@ export const GuessInput = ({ onSubmit }: GuessInputProps) => {
 
     if (getWord(guess).length == 5) {
       onSubmit(guess);
-      setHints(emptyHints());
+      setHints(emptyHints(""));
     }
   };
 
