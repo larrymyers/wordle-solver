@@ -1,6 +1,25 @@
-import { wordleWords } from "./words";
-
 export type HintType = "GREEN" | "YELLOW" | "NONE";
+
+// Lazy load words from JSON file
+let wordleWords: string[] | null = null;
+let wordsPromise: Promise<string[]> | null = null;
+
+const loadWords = async (): Promise<string[]> => {
+  if (wordleWords !== null) {
+    return wordleWords;
+  }
+
+  if (wordsPromise === null) {
+    wordsPromise = fetch('/words.json')
+      .then(response => response.json())
+      .then((words: string[]) => {
+        wordleWords = words;
+        return words;
+      });
+  }
+
+  return wordsPromise;
+};
 
 export interface Hint {
   letter: string;
@@ -96,7 +115,9 @@ const isPlural = (word: string) => {
   return true;
 };
 
-export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
+export const getPossibleWords = async (hints: Hint[], exclusions: string[]): Promise<string[]> => {
+  const words = await loadWords();
+
   const exactMatches = hints.reduce<number[]>((greens, hint) => {
     if (hint.type == "GREEN") {
       greens.push(hint.position);
@@ -105,7 +126,7 @@ export const getPossibleWords = (hints: Hint[], exclusions: string[]) => {
     return greens;
   }, []);
 
-  const matchedWords = wordleWords.filter((word) => {
+  const matchedWords = words.filter((word) => {
     const containsHint = hints.every((hint) => {
       const { type, position } = hint;
       const letter = hint.letter.toLowerCase();

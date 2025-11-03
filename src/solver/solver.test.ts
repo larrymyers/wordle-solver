@@ -1,8 +1,8 @@
 import { assert, test } from "vitest";
 import { type Guess, getPossibleWords, reduceHints } from "./solver";
 
-test("getPossibleWords", () => {
-  const matches = getPossibleWords(
+test("getPossibleWords", async () => {
+  const matches = await getPossibleWords(
     [
       { letter: "r", position: 0, type: "GREEN" },
       { letter: "c", position: 3, type: "GREEN" },
@@ -15,7 +15,7 @@ test("getPossibleWords", () => {
   console.log(matches);
 });
 
-test("guesses with hint promotion", () => {
+test("guesses with hint promotion", async () => {
   const guesses: Guess[] = [
     {
       hints: [
@@ -39,13 +39,13 @@ test("guesses with hint promotion", () => {
 
   const { hints, exclusions } = reduceHints(guesses);
 
-  const actualWords = getPossibleWords(hints, exclusions);
+  const actualWords = await getPossibleWords(hints, exclusions);
   const expectedWords = ["curly", "curvy"];
 
   expectedWords.forEach((word) => assert.include(actualWords, word));
 });
 
-test("double letter guess with only a single match", () => {
+test("double letter guess with only a single match", async () => {
   const gueses: Guess[] = [
     {
       hints: [
@@ -60,7 +60,7 @@ test("double letter guess with only a single match", () => {
 
   const { hints, exclusions } = reduceHints(gueses);
 
-  const actualWords = getPossibleWords(hints, exclusions);
+  const actualWords = await getPossibleWords(hints, exclusions);
   const expectedWords = ["polyp"];
 
   expectedWords.forEach((word) => assert.include(actualWords, word));

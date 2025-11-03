@@ -2,6 +2,8 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "preact"
-  }
+    "jsxImportSource": "preact",
+    "types": ["vitest/globals", "node"]
+  },
+  "include": ["src/**/*", "vitest.setup.ts", "vitest.config.ts"]
 }

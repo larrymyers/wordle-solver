@@ -5,6 +5,7 @@ import type { Hint, Guess } from "../solver/solver";
 export const Solver = () => {
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [selectedWord, setSelectedWord] = useState<string>("");
+  const [wordList, setWordList] = useState<string[]>([]);
 
   const addGuess = (guess: Guess) => {
     setGuesses(guesses.concat([guess]));
@@ -12,10 +13,13 @@ export const Solver = () => {
 
   const reducedHints = reduceHints(guesses);
 
-  let wordList: string[] = [];
-  if (reducedHints.hints.length > 0 || reducedHints.exclusions.length > 0) {
-    wordList = getPossibleWords(reducedHints.hints, reducedHints.exclusions);
-  }
+  useEffect(() => {
+    if (reducedHints.hints.length > 0 || reducedHints.exclusions.length > 0) {
+      getPossibleWords(reducedHints.hints, reducedHints.exclusions).then(setWordList);
+    } else {
+      setWordList([]);
+    }
+  }, [guesses]);
 
   return (
     <div class="flex flex-col sm:flex-row">

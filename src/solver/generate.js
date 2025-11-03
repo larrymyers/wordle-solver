@@ -48,8 +48,4 @@ const exclusions = [
 
 wordleWords = wordleWords.filter((word) => !exclusions.includes(word));
 
-const outModule = `
-  export const wordleWords = ${JSON.stringify(wordleWords)};
-`;
-
-writeFileSync("./words.ts", outModule, "utf-8");
+writeFileSync("../../public/words.json", JSON.stringify(wordleWords, null, 2), "utf-8");
