@@ -1,24 +1,18 @@
 export type HintType = "GREEN" | "YELLOW" | "NONE";
 
-// Lazy load words from JSON file
 let wordleWords: string[] | null = null;
-let wordsPromise: Promise<string[]> | null = null;
 
-const loadWords = async (): Promise<string[]> => {
+export const loadWords = async (): Promise<string[]> => {
   if (wordleWords !== null) {
     return wordleWords;
   }
 
-  if (wordsPromise === null) {
-    wordsPromise = fetch('/words.json')
-      .then(response => response.json())
-      .then((words: string[]) => {
-        wordleWords = words;
-        return words;
-      });
-  }
-
-  return wordsPromise;
+  return fetch("/words.json")
+    .then((response) => response.json())
+    .then((words: string[]) => {
+      wordleWords = words;
+      return words;
+    });
 };
 
 export interface Hint {
@@ -34,7 +28,7 @@ export interface Guess {
 // reduceHints takes all current guesses and outputs two arrays:
 // 1. The list of exact and partial matches.
 // 2. The list of exclusions (letters that do not match)
-export const reduceHints = (guesses: Guess[]) => {
+const reduceHints = (guesses: Guess[]) => {
   const hintsByLetter = guesses.reduce<Map<string, Hint[]>>((hints, guess) => {
     guess.hints
       .filter((hint) => hint.type != "NONE")
@@ -115,51 +109,73 @@ const isPlural = (word: string) => {
   return true;
 };
 
-export const getPossibleWords = async (hints: Hint[], exclusions: string[]): Promise<string[]> => {
-  const words = await loadWords();
+export const getPossibleWords = (words: string[], guesses: Guess[]): string[] => {
+  if (guesses.length === 0) {
+    return [];
+  }
 
-  const exactMatches = hints.reduce<number[]>((greens, hint) => {
-    if (hint.type == "GREEN") {
-      greens.push(hint.position);
-    }
+  const { hints, exclusions } = reduceHints(guesses);
 
-    return greens;
-  }, []);
+  // Count required occurrences of each letter based on the maximum count
+  // of yellow/green hints for that letter across all guesses
+  const letterCounts = new Map<string, number>();
+  guesses.forEach((guess) => {
+    const guessLetterCounts = new Map<string, number>();
+    guess.hints.forEach((hint) => {
+      if (hint.type !== "NONE") {
+        const letter = hint.letter.toLowerCase();
+        guessLetterCounts.set(letter, (guessLetterCounts.get(letter) || 0) + 1);
+      }
+    });
+
+    // Update letterCounts with the maximum seen for each letter
+    guessLetterCounts.forEach((count, letter) => {
+      letterCounts.set(letter, Math.max(letterCounts.get(letter) || 0, count));
+    });
+  });
 
   const matchedWords = words.filter((word) => {
-    const containsHint = hints.every((hint) => {
-      const { type, position } = hint;
-      const letter = hint.letter.toLowerCase();
-      const chars = word.split("");
+    const chars = word.split("");
 
-      if (type == "GREEN") {
-        if (chars[position] == letter) {
-          return true;
+    // First, verify all GREEN hints match exactly
+    const greensMatch = hints.every((hint) => {
+      if (hint.type == "GREEN") {
+        return chars[hint.position] == hint.letter.toLowerCase();
+      }
+      return true;
+    });
+
+    if (!greensMatch) {
+      return false;
+    }
+
+    // Verify word has enough occurrences of each letter
+    for (const [letter, requiredCount] of letterCounts.entries()) {
+      const actualCount = chars.filter((c) => c === letter).length;
+      if (actualCount < requiredCount) {
+        return false;
+      }
+    }
+
+    // Verify all YELLOW hints: letter must NOT be at the hint position
+    const yellowsMatch = hints.every((hint) => {
+      if (hint.type == "YELLOW") {
+        const letter = hint.letter.toLowerCase();
+        // Letter must not be at this position
+        if (chars[hint.position] === letter) {
+          return false;
         }
       }
-
-      if (type == "YELLOW") {
-        return chars.some((c, i) => {
-          // match can't be at an existing green hint position
-          if (exactMatches.includes(i)) {
-            return false;
-          }
-
-          // match must be at a position different than hint
-          if (i == position) {
-            return false;
-          }
-
-          return c == letter;
-        });
-      }
-
-      return false;
+      return true;
     });
+
+    if (!yellowsMatch) {
+      return false;
+    }
 
     const containsExclusion = exclusions.some((letter) => word.includes(letter.toLowerCase()));
 
-    return containsHint && !containsExclusion && !isPlural(word);
+    return !containsExclusion && !isPlural(word);
   });
 
   const rankedWords = matchedWords

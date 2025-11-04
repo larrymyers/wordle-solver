@@ -1,5 +1,5 @@
 import { useState, useEffect } from "preact/hooks";
-import { getPossibleWords, reduceHints } from "../solver/solver";
+import { getPossibleWords, loadWords } from "../solver/solver";
 import type { Hint, Guess } from "../solver/solver";
 
 export const Solver = () => {
@@ -7,19 +7,17 @@ export const Solver = () => {
   const [selectedWord, setSelectedWord] = useState<string>("");
   const [wordList, setWordList] = useState<string[]>([]);
 
+  useEffect(() => {
+    loadWords().then((words) => setWordList(words));
+  }, []);
+
+  useEffect(() => {
+    setWordList(getPossibleWords(wordList, guesses));
+  }, [guesses]);
+
   const addGuess = (guess: Guess) => {
     setGuesses(guesses.concat([guess]));
   };
-
-  const reducedHints = reduceHints(guesses);
-
-  useEffect(() => {
-    if (reducedHints.hints.length > 0 || reducedHints.exclusions.length > 0) {
-      getPossibleWords(reducedHints.hints, reducedHints.exclusions).then(setWordList);
-    } else {
-      setWordList([]);
-    }
-  }, [guesses]);
 
   return (
     <div class="flex flex-col sm:flex-row">
