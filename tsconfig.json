@@ -5,5 +5,5 @@
     "jsxImportSource": "preact",
     "types": ["vitest/globals", "node"]
   },
-  "include": ["src/**/*", "vitest.setup.ts", "vitest.config.ts"]
+  "include": ["src/**/*", "vitest.config.ts"]
 }
